@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:story_app/db/db_helper.dart';
 import 'package:story_app/story.dart';
 
 void main() {
@@ -27,10 +28,37 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  List<Map<String,String>> storyList;
+
+
+  List<Map<String,dynamic>> storyList;
+  int count = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getAllStory();
+
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      //getAllStory();
+    }
+    print(state);
+  }
 
   @override
   Widget build(BuildContext context) {
+
+    if(storyList == null){
+      storyList = List<Map<String,dynamic>>();
+      getAllStory();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("widget.title"),
@@ -39,11 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemBuilder:(context,index){
             return GestureDetector(
               onTap: (){
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context){
-                      return Story(StoryMode.Editing);
-                    }
-                ));
+                navigateDetail(StoryMode.Editing);
               },
               child: Card(
                 child: Padding(
@@ -51,32 +75,63 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _StoryTitle(storyList[index]['title']),
+                      _StoryTitle(storyList[index][DatabaseHelper.storyName]),
                       SizedBox(
                         height: 4,
                       ),
-                      _StoryBody(storyList[index]['text']),
+                      _StoryBody(storyList[index][DatabaseHelper.storyDetails]),
                     ],
                   ),
                 ),
               ),
             );
           },
-        itemCount: 0,
+        itemCount: count,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed:(){
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context){
-                return Story(StoryMode.Adding);
-              }
-          ));
+        onPressed:() async {
+
+          navigateDetail(StoryMode.Adding);
         } ,
         label: Text("New Story"),
         icon: Icon(Icons.event_note),
       ),
     );
   }
+
+  void getAllStory() async{
+
+    storyList = await DatabaseHelper.instance.queryAll(DatabaseHelper.tableStory);
+    debugPrint("list: " + storyList.toString());
+    count = storyList.length;
+    setState(() {
+
+
+    });
+  }
+
+   /*saveStory() async {
+    await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
+      DatabaseHelper.storyName : "First Story",
+      DatabaseHelper.storyDetails : "Story Body"
+
+    });
+
+    debugPrint("Hello");
+  }*/
+
+   void navigateDetail(StoryMode adding) async{
+
+   bool result =  await Navigator.of(context).push(MaterialPageRoute(
+         builder: (context){
+           return Story(adding);
+         }
+     ));
+
+   if(result == true){
+     getAllStory();
+   }
+   }
 }
 
 class _StoryTitle extends StatelessWidget {

@@ -12,14 +12,14 @@ class DatabaseHelper{
   static final _dbVersion = 1;
 
   //TABLE 1 -----  STORY
-  static final _tableStory = 'story_table';
+      static final tableStory = 'story_table';
       static final storyId = 'story_id';
       static final storyName = 'story_name';
       static final storyDetails = 'story_details';
 
 
   //TABLE 2 -----  STORY REVIEW
-  static final _tableReview = 'review_table';
+  static final tableReview = 'review_table';
       static final reviewId = 'review_id';
       static final reviewStoryId = 'review_story_id';
       static final reviewPoint = 'review_point';
@@ -54,9 +54,9 @@ class DatabaseHelper{
 
   FutureOr<void> onCreateTable(Database db, int version) {
     //Table 1
-    db.query(
+    db.execute(
         ''' 
-        CREATE TABLE $_tableStory ( 
+        CREATE TABLE $tableStory ( 
           $storyId INTEGER PRIMARY KEY,
           $storyName TEXT NOT NULL,
           $storyDetails TEXT NOT NULL 
@@ -65,9 +65,9 @@ class DatabaseHelper{
     );
 
     //Table 2
-    db.query(
+    db.execute(
         ''' 
-        CREATE TABLE $_tableReview ( 
+        CREATE TABLE $tableReview ( 
           $reviewId INTEGER PRIMARY KEY,
           $reviewStoryId INTEGER,
           $reviewPoint TEXT NOT NULL,
@@ -98,10 +98,10 @@ class DatabaseHelper{
 
   Future deleteRow(String tableName, int id) async {
     Database db = await instance.database;
-    if(tableName == _tableStory) {
+    if(tableName == tableStory) {
       return await db.delete(tableName, where: '$storyId =? ', whereArgs: [id]);
     }
-    if(tableName == _tableReview) {
+    if(tableName == tableReview) {
       return await db.delete(
           tableName, where: '$reviewId =? ', whereArgs: [id]);
     }

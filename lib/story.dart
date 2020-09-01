@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:story_app/db/db_helper.dart';
+import 'package:story_app/main.dart';
 
 enum StoryMode{
   Editing,
@@ -17,6 +19,14 @@ class Story extends StatefulWidget {
 }
 
 class _StoryState extends State<Story> {
+
+
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
+
+  bool _validateTitle  =false;
+  bool _validateBody  =false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +41,9 @@ class _StoryState extends State<Story> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             TextField(
+              controller: _titleController,
               decoration: InputDecoration(
+                errorText: _validateTitle ? 'Value Can\'t Be Empty' : null,
                   filled: true,
                   fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
@@ -49,7 +61,9 @@ class _StoryState extends State<Story> {
               height: 8,
             ),
             TextField(
+              controller: _textController,
               decoration: InputDecoration(
+                errorText: _validateBody ? 'Value Can\'t Be Empty' : null,
                 filled: true,
                 fillColor: Colors.white,
                 enabledBorder: OutlineInputBorder(
@@ -62,7 +76,7 @@ class _StoryState extends State<Story> {
                 ),
                 hintText: 'Short Story...',
               ),
-              minLines: 16,
+              minLines: 8,
               maxLines: 20,
               autocorrect: false,
 
@@ -75,6 +89,9 @@ class _StoryState extends State<Story> {
               children: [
 
                 StoryButton('Save',Colors.blue,(){
+
+                  print("btn pressed");
+                  saveStory();
 
                 }),
                 SizedBox(height: 8),
@@ -96,6 +113,40 @@ class _StoryState extends State<Story> {
         ),
       ),
     );
+
+  }
+
+  void saveStory() async{
+
+    print("btn pressed");
+
+    /*_titleController.text.isEmpty ? _validateTitle = true : _validateTitle = false;
+    _textController.text.isEmpty ? _validateBody = true : _validateBody = false;
+
+    print(_titleController.text +"---"+_textController.text);
+
+    if( _titleController.text.isNotEmpty || _textController.text.isEmpty){
+
+    }else{
+
+      int i = await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
+        DatabaseHelper.storyName : _titleController.text,
+        DatabaseHelper.storyDetails : _textController.text
+
+      });
+
+      print("Id is $i");
+
+    }*/
+    await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
+      DatabaseHelper.storyName : _titleController.text,
+      DatabaseHelper.storyDetails : _textController.text
+
+    });
+
+    Navigator.pop(context,true);
+
+
   }
 }
 
@@ -123,4 +174,6 @@ class StoryButton extends StatelessWidget {
       height: 44,
     );
   }
+
+
 }
