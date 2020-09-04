@@ -90,9 +90,8 @@ class DatabaseHelper{
   }
 
 
-  Future updateStoryTable(String tableName, Map<String,dynamic> row) async {
+  Future updateStoryTable(String tableName, Map<String,dynamic> row, int _id) async {
     Database db = await instance.database;
-    int _id = row[storyId];
     return await db.update(tableName, row ,where: '$storyId = ?',whereArgs: [_id]);
   }
 

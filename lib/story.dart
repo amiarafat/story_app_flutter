@@ -11,15 +11,18 @@ enum StoryMode{
 class Story extends StatefulWidget {
 
   final StoryMode storyMode;
+  final String sTitle;
+  final String sBody;
+  final int id;
 
-  Story(this.storyMode);
+  Story(this.storyMode,this.sTitle,this.sBody,this.id);
 
   @override
   _StoryState createState() => _StoryState();
 }
 
 class _StoryState extends State<Story> {
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
@@ -27,9 +30,14 @@ class _StoryState extends State<Story> {
   bool _validateTitle  =false;
   bool _validateBody  =false;
 
+
   @override
   Widget build(BuildContext context) {
+
+    _titleController.text = widget.sTitle;
+    _textController.text = widget.sBody;
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
             widget.storyMode == StoryMode.Adding ? 'New Story' : 'Edit Story'
@@ -37,8 +45,8 @@ class _StoryState extends State<Story> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child: Flex(
+          direction: Axis.vertical,
           children: [
             TextField(
               controller: _titleController,
@@ -90,8 +98,15 @@ class _StoryState extends State<Story> {
 
                 StoryButton('Save',Colors.blue,(){
 
-                  print("btn pressed");
-                  saveStory();
+                  if(widget.storyMode == StoryMode.Adding){
+
+                    print("btn pressed");
+                    saveStory();
+                  }else if(widget.storyMode == StoryMode.Editing){
+
+                    print("btn pressed");
+                    updateStory(widget.id);
+                  }
 
                 }),
                 SizedBox(height: 8),
@@ -104,6 +119,7 @@ class _StoryState extends State<Story> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: StoryButton('Delete',Colors.red,(){
+                    deleteStory(widget.id);
                     Navigator.pop(context);
                   }),
                 ) : Container(),
@@ -116,37 +132,59 @@ class _StoryState extends State<Story> {
 
   }
 
+  //Save TO DB
   void saveStory() async{
 
-    print("btn pressed");
-
-    /*_titleController.text.isEmpty ? _validateTitle = true : _validateTitle = false;
-    _textController.text.isEmpty ? _validateBody = true : _validateBody = false;
-
-    print(_titleController.text +"---"+_textController.text);
-
-    if( _titleController.text.isNotEmpty || _textController.text.isEmpty){
+    if(_titleController.text.isEmpty ||  _textController.text.isEmpty){
+      showInSnackBar("Please Insert Story Title and Story");
 
     }else{
 
-      int i = await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
+      await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
         DatabaseHelper.storyName : _titleController.text,
         DatabaseHelper.storyDetails : _textController.text
 
       });
 
-      print("Id is $i");
+      Navigator.pop(context,true);
+    }
+  }
 
-    }*/
-    await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
-      DatabaseHelper.storyName : _titleController.text,
-      DatabaseHelper.storyDetails : _textController.text
+  //Update TO DB
+  Future<void> updateStory(int id) async {
 
-    });
+    print(_titleController.text);
 
-    Navigator.pop(context,true);
+    if(_titleController.text.isEmpty ||  _textController.text.isEmpty){
+      showInSnackBar("Please Insert Story Title and Story");
 
+    }else{
 
+      await DatabaseHelper.instance.updateStoryTable(DatabaseHelper.tableStory, {
+        DatabaseHelper.storyName : _titleController.text,
+        DatabaseHelper.storyDetails : _textController.text
+
+      },id);
+
+      Navigator.pop(context,true);
+    }
+  }
+
+  //Delete ROW TO DB
+  Future<void> deleteStory(int index) async {
+
+    if(widget.id == null){
+      Navigator.pop(context,false);
+    }else{
+
+      await DatabaseHelper.instance.deleteRow(DatabaseHelper.tableStory, widget.id);
+      Navigator.pop(context,true);
+
+    }
+  }
+
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 }
 

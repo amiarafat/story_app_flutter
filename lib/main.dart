@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:story_app/db/db_helper.dart';
 import 'package:story_app/story.dart';
 
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Story App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -27,8 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
 
   List<Map<String,dynamic>> storyList;
   int count = 0;
@@ -61,26 +60,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("widget.title"),
+        title: Text('Story App'),
       ),
       body: ListView.builder(
           itemBuilder:(context,index){
-            return GestureDetector(
-              onTap: (){
-                navigateDetail(StoryMode.Editing);
-              },
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 30,bottom: 30,left: 14,right: 22),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _StoryTitle(storyList[index][DatabaseHelper.storyName]),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      _StoryBody(storyList[index][DatabaseHelper.storyDetails]),
-                    ],
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16,bottom: 16,left: 12,right: 12),
+                /*child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _StoryTitle(storyList[index][DatabaseHelper.storyName]),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    _StoryBody(storyList[index][DatabaseHelper.storyDetails]),
+                  ],
+                ),*/
+                child: ListTile(
+                  onTap: (){
+                    navigateDetail(StoryMode.Editing,storyList[index][DatabaseHelper.storyName],storyList[index][DatabaseHelper.storyDetails],storyList[index][DatabaseHelper.storyId]);
+                  },
+                  contentPadding: const EdgeInsets.only(left: 4,right: 4),
+                  title: _StoryTitle(storyList[index][DatabaseHelper.storyName]),
+                  subtitle: _StoryBody(storyList[index][DatabaseHelper.storyDetails]),
+                  leading: Icon(
+                    Icons.event_note,
+                    size: 36,
+                    color: Colors.blue,
+                  ),
+                  trailing: GestureDetector(
+                    onTap: (){
+                      deleteStory(storyList[index][DatabaseHelper.storyId]);
+                    },
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ),
@@ -91,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed:() async {
 
-          navigateDetail(StoryMode.Adding);
+          navigateDetail(StoryMode.Adding,"","",null);
         } ,
         label: Text("New Story"),
         icon: Icon(Icons.event_note),
@@ -110,21 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-   /*saveStory() async {
-    await DatabaseHelper.instance.insert(DatabaseHelper.tableStory, {
-      DatabaseHelper.storyName : "First Story",
-      DatabaseHelper.storyDetails : "Story Body"
-
-    });
-
-    debugPrint("Hello");
-  }*/
-
-   void navigateDetail(StoryMode adding) async{
+  void navigateDetail(StoryMode adding,String title,String body, int storyId) async{
 
    bool result =  await Navigator.of(context).push(MaterialPageRoute(
          builder: (context){
-           return Story(adding);
+           return Story(adding,title,body,storyId);
          }
      ));
 
@@ -132,6 +138,11 @@ class _MyHomePageState extends State<MyHomePage> {
      getAllStory();
    }
    }
+
+  Future<void> deleteStory(int indexId) async {
+    await DatabaseHelper.instance.deleteRow(DatabaseHelper.tableStory, indexId);
+    getAllStory();
+  }
 }
 
 class _StoryTitle extends StatelessWidget {
@@ -145,7 +156,8 @@ class _StoryTitle extends StatelessWidget {
     return  Text(
       _title,
       style: TextStyle(
-          fontSize: 25,
+          color: Colors.black54,
+          fontSize: 20,
           fontWeight: FontWeight.bold
       ),
     );
@@ -162,9 +174,10 @@ class _StoryBody extends StatelessWidget {
     return Text(
       _text,
       style: TextStyle(
-        color: Colors.grey.shade600,
+        fontSize: 14,
+        color: Colors.grey.shade500,
       ),
-      maxLines: 2,
+      maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
   }
