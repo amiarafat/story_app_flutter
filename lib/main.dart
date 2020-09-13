@@ -41,23 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      //getAllStory();
-    }
-    print(state);
-  }
-
   @override
   Widget build(BuildContext context) {
-
-    if(storyList == null){
-      storyList = List<Map<String,dynamic>>();
-      getAllStory();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Story App'),
@@ -67,16 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
             return Card(
               child: Padding(
                 padding: const EdgeInsets.only(top: 16,bottom: 16,left: 12,right: 12),
-                /*child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _StoryTitle(storyList[index][DatabaseHelper.storyName]),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    _StoryBody(storyList[index][DatabaseHelper.storyDetails]),
-                  ],
-                ),*/
                 child: ListTile(
                   onTap: (){
                     navigateDetail(StoryMode.Editing,storyList[index][DatabaseHelper.storyName],storyList[index][DatabaseHelper.storyDetails],storyList[index][DatabaseHelper.storyId]);
@@ -89,13 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     size: 36,
                     color: Colors.blue,
                   ),
-                  trailing: GestureDetector(
-                    onTap: (){
-                      deleteStory(storyList[index][DatabaseHelper.storyId]);
-                    },
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.red,
+                  trailing: Container(
+                    child: GestureDetector(
+                      onTap: (){
+                        deleteStory(storyList[index][DatabaseHelper.storyId]);
+                      },
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
                     ),
                   ),
                 ),

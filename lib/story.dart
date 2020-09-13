@@ -67,6 +67,7 @@ class _StoryState extends State<Story> {
             ),
             SizedBox(
               height: 8,
+
             ),
             TextField(
               controller: _textController,
@@ -99,12 +100,8 @@ class _StoryState extends State<Story> {
                 StoryButton('Save',Colors.blue,(){
 
                   if(widget.storyMode == StoryMode.Adding){
-
-                    print("btn pressed");
                     saveStory();
                   }else if(widget.storyMode == StoryMode.Editing){
-
-                    print("btn pressed");
                     updateStory(widget.id);
                   }
 
@@ -114,15 +111,14 @@ class _StoryState extends State<Story> {
                   Navigator.pop(context);
                 }),
                 SizedBox(height: 8),
-
-                widget.storyMode == StoryMode.Editing ?
+               /* widget.storyMode == StoryMode.Editing ?
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: StoryButton('Delete',Colors.red,(){
                     deleteStory(widget.id);
                     Navigator.pop(context);
                   }),
-                ) : Container(),
+                ) : Container(),*/
               ],
             ),
           ],
@@ -171,17 +167,11 @@ class _StoryState extends State<Story> {
   }
 
   //Delete ROW TO DB
-  Future<void> deleteStory(int index) async {
+  /*Future<void> deleteStory(int index) async {
 
-    if(widget.id == null){
-      Navigator.pop(context,false);
-    }else{
-
-      await DatabaseHelper.instance.deleteRow(DatabaseHelper.tableStory, widget.id);
-      Navigator.pop(context,true);
-
-    }
-  }
+    await DatabaseHelper.instance.deleteRow(DatabaseHelper.tableStory, index);
+    Navigator.pop(context,true);
+  }*/
 
   void showInSnackBar(String value) {
     _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
